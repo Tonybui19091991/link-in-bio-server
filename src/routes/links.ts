@@ -6,6 +6,7 @@ import { customAlphabet } from "nanoid";
 import * as dateFnsTz from "date-fns-tz";
 import { UAParser } from "ua-parser-js";
 import { cityTranslations } from "../cityTranslation";
+import axios from "axios";
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -71,6 +72,11 @@ export function translateCityName(city?: string): string | null {
   return cityTranslations[normalized] || normalized;
 }
 
+async function getLocation(ip: string) {
+  const response = await axios.get(`https://ipapi.co/${ip}/json/`);
+  console.log(response.data);
+}
+
 export const handleRedirect = async (req: any, res: any) => {
 
   if (
@@ -96,7 +102,8 @@ export const handleRedirect = async (req: any, res: any) => {
   }
 
   console.log("địa chỉ ip", ip);
-  
+  getLocation(ip);
+
   const link = await prisma.link.findFirst({
     where: {
       short_codes: {
