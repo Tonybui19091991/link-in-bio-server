@@ -1,32 +1,44 @@
 {
-  "name": "link-analytics-server",
+  "name": "link-bio-analytics-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.ts",
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
-    "@prisma/client": "^6.16.3",
+    "@prisma/client": "^6.17.1",
+    "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "date-fns-tz": "^3.2.0",
+    "dayjs": "^1.11.18",
     "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "geoip-lite": "^1.4.10",
+    "google-auth-library": "^10.4.0",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^6.16.3",
-    "tsconfig-paths": "^4.2.0"
+    "nanoid": "^5.1.6",
+    "passport": "^0.7.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "ua-parser-js": "^2.0.6"
   },
   "devDependencies": {
+    "@types/axios": "^0.9.36",
     "@types/cors": "^2.8.19",
+    "@types/date-fns": "^2.5.3",
     "@types/express": "^5.0.3",
+    "@types/geoip-lite": "^1.4.4",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/nanoid": "^2.1.0",
     "nodemon": "^3.1.10",
+    "prisma": "^6.17.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "dev": "npx ts-node -r tsconfig-paths/register src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts"
   }
 }
