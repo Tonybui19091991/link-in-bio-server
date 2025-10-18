@@ -95,6 +95,8 @@ export const handleRedirect = async (req: any, res: any) => {
     ip = "8.8.8.8";
   }
 
+  console.log("địa chỉ ip", ip);
+  
   const link = await prisma.link.findFirst({
     where: {
       short_codes: {
