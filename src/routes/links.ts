@@ -71,6 +71,17 @@ export function translateCityName(city?: string): string | null {
   return cityTranslations[normalized] || normalized;
 }
 
+function normalizeIp(ip: string | undefined | null): string | null {
+  if (!ip) return null;
+  
+  // Nếu là IPv6 mapped IPv4: "::ffff:192.168.1.1" → "192.168.1.1"
+  if (ip.startsWith("::ffff:")) {
+    return ip.replace("::ffff:", "");
+  }
+
+  return ip;
+}
+
 export const handleRedirect = async (req: any, res: any) => {
 
   if (
@@ -105,7 +116,8 @@ export const handleRedirect = async (req: any, res: any) => {
 
   let locationData = null;
   try {
-    locationData = ip ? geoip.lookup(ip) : null;
+    const normalizedIp = normalizeIp(ip);
+    locationData = normalizedIp ? geoip.lookup(normalizedIp) : null;
   } catch (err) {
     console.error("GeoIP lookup failed:", err);
   }
