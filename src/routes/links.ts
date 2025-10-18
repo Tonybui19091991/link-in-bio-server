@@ -71,17 +71,6 @@ export function translateCityName(city?: string): string | null {
   return cityTranslations[normalized] || normalized;
 }
 
-function normalizeIp(ip: string | undefined | null): string | null {
-  if (!ip) return null;
-  
-  // Nếu là IPv6 mapped IPv4: "::ffff:192.168.1.1" → "192.168.1.1"
-  if (ip.startsWith("::ffff:")) {
-    return ip.replace("::ffff:", "");
-  }
-
-  return ip;
-}
-
 export const handleRedirect = async (req: any, res: any) => {
 
   if (
@@ -95,8 +84,16 @@ export const handleRedirect = async (req: any, res: any) => {
   const { shortCode } = req.params;
   const userAgent = req.headers["user-agent"] || "";
   const ipHeader = req.headers["x-forwarded-for"];
-  let ip = Array.isArray(ipHeader) ? ipHeader[0] : ipHeader || req.socket.remoteAddress;
-  if (ip === "::1") ip = "8.8.8.8";
+  const forwarded = req.headers['x-forwarded-for'];
+  let ip = Array.isArray(forwarded) ? forwarded[0] : forwarded || req.socket.remoteAddress;
+  
+  if (ip?.startsWith("::ffff:")) {
+    ip = ip.replace("::ffff:", "");
+  }
+
+  if (ip === "::1" || ip === "127.0.0.1") {
+    ip = "8.8.8.8";
+  }
 
   const link = await prisma.link.findFirst({
     where: {
@@ -116,8 +113,7 @@ export const handleRedirect = async (req: any, res: any) => {
 
   let locationData = null;
   try {
-    const normalizedIp = normalizeIp(ip);
-    locationData = normalizedIp ? geoip.lookup(normalizedIp) : null;
+    locationData = ip ? geoip.lookup(ip) : null;
   } catch (err) {
     console.error("GeoIP lookup failed:", err);
   }
