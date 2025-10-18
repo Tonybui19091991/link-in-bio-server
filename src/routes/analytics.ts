@@ -23,6 +23,8 @@ const COLORS = [
   "#EC4899", // Pink
 ];
 
+const days = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
+
 router.get("/overview/:userId", authMiddleware, async (req, res) => {
   const { userId } = req.params;
 
@@ -197,5 +199,65 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Analytics overview error" });
   }
 });
+
+router.get("/heatmap/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Lấy tất cả clicks của user
+    const clicks = await prisma.$queryRaw<
+      { clicked_at: Date }[]
+    >`
+      SELECT c.clicked_at
+      FROM "Click" c
+      LEFT JOIN "Link" l
+        ON l.id = c.link_id
+      WHERE l.user_id = ${userId}::uuid
+        AND l.is_active = true
+        AND l.is_deleted = false
+    `;
+
+    if (clicks.length === 0) {
+      return res.json({
+        days,
+        hours: [],
+        data: Array.from({ length: 7 }, () => [])
+      });
+    }
+
+    // Lấy tất cả giờ thực sự có click → dynamic hours
+    const uniqueHours = Array.from(
+      new Set(clicks.map(c => new Date(c.clicked_at).getHours()))
+    ).sort((a, b) => a - b);
+
+    const hourLabels = uniqueHours.map(h => `${h}h`);
+
+    // Tạo ma trận 7 x số giờ
+    const data = Array.from({ length: 7 }, () => Array(uniqueHours.length).fill(0));
+
+    clicks.forEach(({ clicked_at }) => {
+      const date = new Date(clicked_at.toISOString());
+      const dayIdx = (date.getDay() + 6) % 7; // Thứ 2 = 0, Chủ Nhật = 6
+      const hourIdx = uniqueHours.indexOf(date.getHours());
+      if (hourIdx !== -1) data[dayIdx][hourIdx] += 1;
+    });
+
+    // Normalize giá trị (0 → 1)
+    let max = 0;
+    data.forEach(row => row.forEach(v => { if(v>max) max=v; }));
+    const normalizedData = data.map(row => row.map(v => max ? v/max : 0));
+
+    res.json({
+      days,
+      hours: hourLabels,
+      data: normalizedData
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 export default router;
