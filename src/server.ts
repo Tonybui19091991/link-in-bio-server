@@ -7,6 +7,8 @@ import authRoutes from "./routes/auth";
 import linkRoutes, { handleRedirect } from "./routes/links";
 import analyticsRoutes from "./routes/analytics";
 
+const BASE_URL = process.env.BASE_URL as string;
+
 const prisma = new PrismaClient();
 const app = express();
 
@@ -25,5 +27,5 @@ app.get("/", (req, res) => {
 
 const PORT = 4000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on ${BASE_URL}`);
 });

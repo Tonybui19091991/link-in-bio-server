@@ -6,6 +6,7 @@ import { customAlphabet } from "nanoid";
 import * as dateFnsTz from "date-fns-tz";
 import { UAParser } from "ua-parser-js";
 
+const BASE_URL = process.env.BASE_URL as string;
 const router = Router();
 
 router.post("/", authMiddleware, async (req, res) => {
@@ -48,8 +49,6 @@ router.get("/:userId", authMiddleware, async (req, res) => {
       clicks: { _count: 'desc' }, // sắp xếp theo số click
     },
   });
-
-  const BASE_URL = "http://localhost:4000"; // đổi thành biến môi trường sau
 
   const linksWithShortLinks = links.map((link) => ({
     ...link,

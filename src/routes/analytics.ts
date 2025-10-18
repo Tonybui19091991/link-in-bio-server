@@ -5,6 +5,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 
+const BASE_URL = process.env.BASE_URL as string;
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -106,8 +108,6 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
     ORDER BY days.d ASC;
   `;
 
-
-
     const trafficSources = await prisma.$queryRaw<
         { referrer: string; count: number }[]
       >`
@@ -180,7 +180,7 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
             title: topLink.title,
             url: topLink.original_url,
             clicks: topLink.clicks.length,
-            short_links: topLink.short_codes.map(code => `http://localhost:4000/${code}`), // đổi thành env variable trong production
+            short_links: topLink.short_codes.map(code => `${BASE_URL}/${code}`), // đổi thành env variable trong production
           }
         : null,
       top10Links: top10Links.map((d) => ({
