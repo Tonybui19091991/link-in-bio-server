@@ -4,6 +4,8 @@ import { authMiddleware, AuthRequest } from "../middleware/auth";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import dotenv from 'dotenv';
+dotenv.config()
 
 const BASE_URL = process.env.BASE_URL as string;
 

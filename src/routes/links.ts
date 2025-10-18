@@ -5,6 +5,8 @@ import { authMiddleware, AuthRequest } from "../middleware/auth";
 import { customAlphabet } from "nanoid";
 import * as dateFnsTz from "date-fns-tz";
 import { UAParser } from "ua-parser-js";
+import dotenv from 'dotenv';
+dotenv.config();
 
 const BASE_URL = process.env.BASE_URL as string;
 const router = Router();
