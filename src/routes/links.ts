@@ -5,6 +5,8 @@ import { authMiddleware, AuthRequest } from "../middleware/auth";
 import { customAlphabet } from "nanoid";
 import * as dateFnsTz from "date-fns-tz";
 import { UAParser } from "ua-parser-js";
+import { cityTranslations } from "../cityTranslation";
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -61,6 +63,14 @@ router.get("/:userId", authMiddleware, async (req, res) => {
   res.json(linksWithShortLinks);
 });
 
+export function translateCityName(city?: string): string | null {
+  if (!city) return null;
+
+  // Normalize: remove extra spaces, capitalize, etc.
+  const normalized = city.trim();
+  return cityTranslations[normalized] || normalized;
+}
+
 export const handleRedirect = async (req: any, res: any) => {
 
   if (
@@ -99,6 +109,7 @@ export const handleRedirect = async (req: any, res: any) => {
   } catch (err) {
     console.error("GeoIP lookup failed:", err);
   }
+  console.log(locationData);
   await prisma.click.create({
     data: {
       link_id: link.id,
@@ -108,7 +119,7 @@ export const handleRedirect = async (req: any, res: any) => {
       referrer: getReferrerFromShortCode(shortCode),
       country: locationData?.country || null,
       region: locationData?.region || null,
-      city: locationData?.city || null,
+      city: translateCityName(locationData?.city) || null,
     },
   });
 
