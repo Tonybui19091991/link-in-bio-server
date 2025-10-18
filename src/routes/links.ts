@@ -119,7 +119,7 @@ export const handleRedirect = async (req: any, res: any) => {
       referrer: getReferrerFromShortCode(shortCode),
       country: locationData?.country || null,
       region: locationData?.region || null,
-      city: translateCityName(locationData?.city) || null,
+      city: locationData?.city || null,
     },
   });
 
