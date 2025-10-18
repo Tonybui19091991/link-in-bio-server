@@ -39,6 +39,8 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts"
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   }
 }
