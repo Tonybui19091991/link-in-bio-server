@@ -195,13 +195,12 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
       ORDER BY count DESC;
     `;
 
+    const clicksYesterday = Number(clicksTodayAndYesterday[0].clicks);
+    const clicksToday = Number(clicksTodayAndYesterday[1].clicks);
+
     let dailyGrowth = 0;
-    if (clicksTodayAndYesterday.length === 2) {
-      const clicksYesterday = clicksTodayAndYesterday[0].clicks;
-      const clicksToday = clicksTodayAndYesterday[1].clicks;
-      dailyGrowth = clicksYesterday > 0
-        ? ((clicksToday - clicksYesterday) / clicksYesterday) * 100
-        : 0;
+    if (clicksYesterday > 0) {
+      dailyGrowth = ((clicksToday - clicksYesterday) / clicksYesterday) * 100;
     }
 
     // Lấy top 10 link có nhiều lượt click nhất
