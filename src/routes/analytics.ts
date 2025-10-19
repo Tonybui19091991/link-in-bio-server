@@ -201,6 +201,7 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
       take: 10,
     });
 
+    console.log("city :", cityStats);
     res.json({
       summary: {
         totalClicks,
