@@ -127,12 +127,12 @@ router.post("/google", async (req, res) => {
     let user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       user = await prisma.user.create({
-        data: { email, name, password_hash: "" },
+        data: { email, name, password_hash: "", provider_id: userInfo.sub },
       });
     }
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
-    res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
+    res.json({ token, user: { id: user.id, email: user.email, name: user.name, provider_id: user.provider_id } });
 
   } catch (err) {
     console.error(err);
@@ -153,7 +153,7 @@ router.post("/facebook", async (req, res) => {
     const fbRes = await axios.get<FacebookUserInfo>(
       `https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`
     );
-    const { email, name } = fbRes.data;
+    const { id, email, name } = fbRes.data;
 
     if (!email) {
       return res.status(400).json({ message: "Không lấy được email từ tài khoản Facebook." });
@@ -167,14 +167,15 @@ router.post("/facebook", async (req, res) => {
         data: {
           email,
           name,
-          password_hash: "" // Không dùng mật khẩu
+          password_hash: "", // Không dùng mật khẩu
+          provider_id: id
         }
       });
     }
 
     // ✅ Tạo JWT token
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
-    res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
+    res.json({ token, user: { id: user.id, email: user.email, name: user.name, provider_id: user.provider_id} });
 
   } catch (err) {
     res.status(500).json({ message: "Đăng nhập Facebook thất bại." });
