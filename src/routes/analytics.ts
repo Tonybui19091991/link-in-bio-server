@@ -15,13 +15,11 @@ dayjs.extend(timezone);
 const router = Router();
 
 const COLORS = [
-  "#6366F1", // Indigo
   "#10B981", // Emerald
   "#F59E0B", // Amber
   "#EF4444", // Red
   "#8B5CF6", // Violet
   "#EC4899", // Pink
-  "#3B82F6", // Blue
   "#14B8A6", // Teal
   "#84CC16", // Lime
   "#EAB308", // Yellow
@@ -33,10 +31,8 @@ const COLORS = [
   "#F43F5E", // Rose
   "#D946EF", // Fuchsia
   "#BE123C", // Dark Red
-  "#2563EB", // Strong Blue
   "#15803D", // Dark Green
   "#B45309", // Brownish Orange
-  "#1E40AF", // Deep Indigo
   "#334155", // Slate
   "#64748B", // Grayish Blue
   "#94A3B8", // Cool Gray
@@ -44,7 +40,6 @@ const COLORS = [
   "#FB923C", // Light Orange
   "#C084FC", // Light Purple
   "#FCA5A5", // Light Red
-  "#60A5FA", // Light Blue
   "#4ADE80", // Light Green
   "#F9A8D4", // Light Pink
   "#34D399", // Mint
@@ -54,7 +49,6 @@ const COLORS = [
   "#FDA4AF", // Pastel Red
   "#C2410C", // Burnt Orange
   "#15803D", // Forest Green
-  "#1D4ED8", // Royal Blue
 ];
 
 const days = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
