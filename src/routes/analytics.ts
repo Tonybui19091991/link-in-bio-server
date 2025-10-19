@@ -195,13 +195,14 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
       ORDER BY count DESC;
     `;
 
-    const clicksYesterday = Number(clicksTodayAndYesterday[0].clicks);
-    const clicksToday = Number(clicksTodayAndYesterday[1].clicks);
+    // const clicksYesterday = Number(clicksTodayAndYesterday[0].clicks);
+    // const clicksToday = Number(clicksTodayAndYesterday[1].clicks);
 
     let dailyGrowth = 0;
-    if (clicksYesterday > 0) {
-      dailyGrowth = ((clicksToday - clicksYesterday) / clicksYesterday) * 100;
-    }
+    // if (clicksYesterday > 0) {
+    //   dailyGrowth = ((clicksToday - clicksYesterday) / clicksYesterday) * 100;
+    // }
+    console.log(clicksTodayAndYesterday);
 
     // Lấy top 10 link có nhiều lượt click nhất
     const top10Links = await prisma.link.findMany({
