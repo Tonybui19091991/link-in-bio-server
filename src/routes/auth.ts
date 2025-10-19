@@ -36,16 +36,28 @@ router.post("/register", async (req, res) => {
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: "Email đã tồn tại" });
+      if (existingUser.password_hash !== "") {
+        return res.status(400).json({ message: "Email đã tồn tại" });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Cập nhật mật khẩu
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: { password_hash: hashedPassword },
+      });
+
+      res.status(201).json({ id: existingUser.id, email: existingUser.email, name: existingUser.name });
+      
+    } else {
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const user = await prisma.user.create({
+        data: { email, password_hash: hashedPassword, name },
+      });
+
+      res.status(201).json({ id: user.id, email: user.email, name: user.name });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: { email, password_hash: hashedPassword, name },
-    });
-
-    res.status(201).json({ id: user.id, email: user.email, name: user.name });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -150,12 +162,12 @@ router.post("/facebook", async (req, res) => {
     // ✅ Kiểm tra user trong DB
     let user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-        // Nếu chưa có thì tạo mới
-        user = await prisma.user.create({
-          data: {
-            email,
-            name,
-            password_hash: "" // Không dùng mật khẩu
+      // Nếu chưa có thì tạo mới
+      user = await prisma.user.create({
+        data: {
+          email,
+          name,
+          password_hash: "" // Không dùng mật khẩu
         }
       });
     }
