@@ -74,6 +74,29 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
       orderBy: { clicks: { _count: "desc" } },
     });
 
+    const clicksTodayAndYesterday = await prisma.$queryRaw<
+      { date: string; clicks: number }[]
+    >`
+      WITH dates AS (
+        SELECT CURRENT_DATE - INTERVAL '1 day' AS d
+        UNION ALL
+        SELECT CURRENT_DATE AS d
+      )
+      SELECT 
+        TO_CHAR(dates.d, 'DD-MM-YYYY') AS date,
+        COALESCE(COUNT(c.id),0) AS clicks
+      FROM dates
+      LEFT JOIN "Link" l
+        ON l.user_id = ${userId}::uuid
+        AND l.is_deleted = false
+        AND l.is_active = true
+      LEFT JOIN "Click" c
+        ON c.link_id = l.id
+        AND (c.clicked_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Ho_Chi_Minh')::date = dates.d
+      GROUP BY dates.d
+      ORDER BY dates.d ASC;
+    `;
+
     const deviceStats = await prisma.$queryRaw<
       { device_type: string; count: number }[]
     >`
@@ -172,6 +195,15 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
       ORDER BY count DESC;
     `;
 
+    let dailyGrowth = 0;
+    if (clicksTodayAndYesterday.length === 2) {
+      const clicksYesterday = clicksTodayAndYesterday[0].clicks;
+      const clicksToday = clicksTodayAndYesterday[1].clicks;
+      dailyGrowth = clicksYesterday > 0
+        ? ((clicksToday - clicksYesterday) / clicksYesterday) * 100
+        : 0;
+    }
+
     // Lấy top 10 link có nhiều lượt click nhất
     const top10Links = await prisma.link.findMany({
       where: {
@@ -200,6 +232,7 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
       summary: {
         totalClicks,
         totalLinks,
+        dailyGrowth
       },
       city_stats: cityStats.map((d, index) => ({
         name: d.city,
