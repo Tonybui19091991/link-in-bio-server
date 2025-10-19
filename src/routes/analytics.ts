@@ -75,7 +75,7 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
     });
 
     const clicksTodayAndYesterday = await prisma.$queryRaw<
-      { date: string; clicks: number }[]
+      { date: string; clicks: bigint }[]
     >`
       WITH dates AS (
         SELECT CURRENT_DATE - INTERVAL '1 day' AS d
@@ -195,14 +195,14 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
       ORDER BY count DESC;
     `;
 
-    // const clicksYesterday = Number(clicksTodayAndYesterday[0].clicks);
-    // const clicksToday = Number(clicksTodayAndYesterday[1].clicks);
+    console.log(clicksTodayAndYesterday);
+    const clicksYesterday = Number(clicksTodayAndYesterday[0].clicks);
+    const clicksToday = Number(clicksTodayAndYesterday[1].clicks);
 
     let dailyGrowth = 0;
-    // if (clicksYesterday > 0) {
-    //   dailyGrowth = ((clicksToday - clicksYesterday) / clicksYesterday) * 100;
-    // }
-    console.log(clicksTodayAndYesterday);
+    if (clicksYesterday > 0) {
+       dailyGrowth = ((clicksToday - clicksYesterday) / clicksYesterday) * 100;
+    }
 
     // Lấy top 10 link có nhiều lượt click nhất
     const top10Links = await prisma.link.findMany({
