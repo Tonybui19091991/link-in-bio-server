@@ -21,6 +21,40 @@ const COLORS = [
   "#EF4444", // Red
   "#8B5CF6", // Violet
   "#EC4899", // Pink
+  "#3B82F6", // Blue
+  "#14B8A6", // Teal
+  "#84CC16", // Lime
+  "#EAB308", // Yellow
+  "#F97316", // Orange
+  "#22C55E", // Green
+  "#A855F7", // Purple
+  "#06B6D4", // Cyan
+  "#0EA5E9", // Sky
+  "#F43F5E", // Rose
+  "#D946EF", // Fuchsia
+  "#BE123C", // Dark Red
+  "#2563EB", // Strong Blue
+  "#15803D", // Dark Green
+  "#B45309", // Brownish Orange
+  "#1E40AF", // Deep Indigo
+  "#334155", // Slate
+  "#64748B", // Grayish Blue
+  "#94A3B8", // Cool Gray
+  "#A3E635", // Light Lime
+  "#FB923C", // Light Orange
+  "#C084FC", // Light Purple
+  "#FCA5A5", // Light Red
+  "#60A5FA", // Light Blue
+  "#4ADE80", // Light Green
+  "#F9A8D4", // Light Pink
+  "#34D399", // Mint
+  "#2DD4BF", // Aqua
+  "#FDE047", // Bright Yellow
+  "#FACC15", // Golden
+  "#FDA4AF", // Pastel Red
+  "#C2410C", // Burnt Orange
+  "#15803D", // Forest Green
+  "#1D4ED8", // Royal Blue
 ];
 
 const days = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
@@ -128,6 +162,21 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
         GROUP BY referrer
         ORDER BY count DESC;
       `;
+    
+    const cityStats = await prisma.$queryRaw<
+      { city: string; count: number }[]
+    >`
+      SELECT 
+        COALESCE(c.city, 'Unknown') AS city,
+        COUNT(*) AS count
+      FROM "Click" c
+      INNER JOIN "Link" l ON c.link_id = l.id
+      WHERE l.user_id = ${userId}::uuid
+        AND l.is_deleted = false
+        AND l.is_active = true
+      GROUP BY city
+      ORDER BY count DESC;
+    `;
 
     // Lấy top 10 link có nhiều lượt click nhất
     const top10Links = await prisma.link.findMany({
@@ -157,6 +206,14 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
         totalClicks,
         totalLinks,
       },
+      city_stats: cityStats.map((d, index) => ({
+        name: d.city,
+        color: COLORS[index % COLORS.length],
+        percent:
+          (Number(totalClicks) > 0
+            ? (Number(d.count) / Number(totalClicks)) * 100
+            : 0).toFixed(0),
+      })),
       device_stats: deviceStats.map((d, index) => ({
         type: d.device_type,
         color: COLORS[index % COLORS.length],
