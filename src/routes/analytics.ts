@@ -207,7 +207,7 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
         percent:
           (Number(totalClicks) > 0
             ? (Number(d.count) / Number(totalClicks)) * 100
-            : 0).toFixed(0),
+            : 0),
       })),
       device_stats: deviceStats.map((d, index) => ({
         type: d.device_type,
