@@ -169,8 +169,9 @@ router.post("/facebook", async (req, res) => {
   }
 });
 
-router.put('/update-password', authMiddleware, async (req, res) => {
-  const { userId, currentPassword, newPassword } = req.body;
+router.put('/update-password/:userId', authMiddleware, async (req, res) => {
+  const { userId } = req.params;
+  const { currentPassword, newPassword } = req.body;
 
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ error: 'Cần mật khẩu hiện tại và mật khẩu mới' });
