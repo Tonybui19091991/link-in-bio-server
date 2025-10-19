@@ -36,7 +36,7 @@ router.post("/register", async (req, res) => {
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      if (existingUser.password_hash !== "") {
+      if (existingUser.provider_id === "") {
         return res.status(400).json({ message: "Email đã tồn tại" });
       }
       const hashedPassword = await bcrypt.hash(password, 10);
