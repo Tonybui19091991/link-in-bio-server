@@ -3,6 +3,7 @@ import prisma from "../db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import { authMiddleware } from "../middleware/auth";
 import axios from "axios";
 import dotenv from 'dotenv';
 dotenv.config();
@@ -165,6 +166,46 @@ router.post("/facebook", async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ message: "Đăng nhập Facebook thất bại." });
+  }
+});
+
+router.put('/update-password', authMiddleware, async (req, res) => {
+  const { userId, currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Cần mật khẩu hiện tại và mật khẩu mới' });
+  }
+
+  try {
+    // Lấy user hiện tại
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { password_hash: true }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Người dùng không tồn tại' });
+    }
+
+    // Kiểm tra mật khẩu hiện tại
+    const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Mật khẩu hiện tại không đúng' });
+    }
+
+    // Hash mật khẩu mới
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Cập nhật mật khẩu
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password_hash: hashedPassword },
+    });
+
+    res.json({ message: 'Cập nhật mật khẩu thành công' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi server khi cập nhật mật khẩu' });
   }
 });
 
