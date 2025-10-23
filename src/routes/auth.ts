@@ -81,6 +81,7 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
 
+    console.log("User logged in:", user.user_purpose);
     res.json({ token, user: { id: user.id, email: user.email, name: user.name, user_purpose: user.user_purpose  } });
   } catch (err) {
     console.error(err);
@@ -132,6 +133,7 @@ router.post("/google", async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" });
+    console.log("User logged in:", user.user_purpose);
     res.json({ token, user: { id: user.id, email: user.email, name: user.name, provider_id: user.provider_id,  user_purpose: user.user_purpose  } });
 
   } catch (err) {
@@ -175,6 +177,7 @@ router.post("/facebook", async (req, res) => {
 
     // ✅ Tạo JWT token
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
+    console.log("User logged in:", user.user_purpose);
     res.json({ token, user: { id: user.id, email: user.email, name: user.name, provider_id: user.provider_id,  user_purpose: user.user_purpose } });
 
   } catch (err) {
