@@ -223,4 +223,33 @@ router.put('/update-password/:userId', authMiddleware, async (req, res) => {
   }
 });
 
+router.put('/user_purpose/:userId', authMiddleware, async (req, res) => {
+  const { userId } = req.params;
+  const { user_purpose } = req.body;
+
+  if (!user_purpose) {
+    return res.status(400).json({ error: 'Cần mục đích sử dụng người dùng' });
+  }
+
+  try {
+    // Lấy user hiện tại
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Người dùng không tồn tại' });
+    }
+
+    // Cập nhật mật khẩu
+    await prisma.user.update({
+      where: { id: userId },
+      data: { user_purpose: user_purpose },
+    });
+
+    res.json({ message: 'Cập nhật mục đích sử dụng thành công' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi server khi cập nhật mục đích sử dụng' });
+  }
+});
+
 export default router;
