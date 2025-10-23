@@ -14,6 +14,7 @@ model User {
   password_hash String?
   auth_provider String?        @default("local")
   provider_id   String?
+  user_purpose  String?
   created_at    DateTime?      @default(now())
   updated_at    DateTime?      @default(now())
   links         Link[]
