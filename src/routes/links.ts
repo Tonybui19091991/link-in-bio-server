@@ -17,7 +17,8 @@ const router = Router();
 router.post("/", authMiddleware, async (req, res) => {
   const { user_id, original_url, title, description } = req.body;
 
-  const shortCode = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 20);
+  const shortAlphabet = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 20);
+  const shortCode = shortAlphabet();
 
   try {
     const link = await prisma.link.create({
@@ -91,7 +92,6 @@ function detectAppSource(userAgent: string) {
 }
 
 export const handleRedirect = async (req: any, res: any) => {
-
   if (
     req.method === "HEAD" ||
     req.headers["sec-purpose"]?.includes("prefetch") ||
