@@ -77,6 +77,25 @@ async function getLocation(ip: string) {
   console.log(response.data);
 }
 
+/**
+ * Xác định ứng dụng hoặc môi trường mở link (Facebook, Zalo, TikTok, Browser...)
+ */
+function detectAppSource(userAgent: string) {
+  const ua = userAgent.toLowerCase();
+
+  if (ua.includes("zalo")) return "Zalo";
+  if (ua.includes("fbav") || ua.includes("fban") || ua.includes("facebook")) return "Facebook";
+  if (ua.includes("instagram")) return "Instagram";
+  if (ua.includes("tiktok")) return "TikTok";
+  if (ua.includes("messenger")) return "Messenger";
+  if (ua.includes("twitter")) return "Twitter";
+  if (ua.includes("linkedin")) return "LinkedIn";
+  if (ua.includes("chrome") || ua.includes("safari") || ua.includes("firefox") || ua.includes("edg"))
+    return "Browser";
+
+  return "Unknown";
+}
+
 export const handleRedirect = async (req: any, res: any) => {
 
   if (
@@ -101,6 +120,8 @@ export const handleRedirect = async (req: any, res: any) => {
     ip = "8.8.8.8";
   }
 
+  const appSource = detectAppSource(userAgent);
+  console.log("Nguồn mở link:", appSource);
   console.log("địa chỉ ip", ip);
   getLocation(ip);
 
