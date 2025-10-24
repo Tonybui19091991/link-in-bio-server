@@ -75,18 +75,50 @@ async function getLocation(ip: string) {
 /**
  * Xác định ứng dụng hoặc môi trường mở link (Facebook, Zalo, TikTok, Browser...)
  */
-function detectAppSource(userAgent: string) {
+export function detectAppSource(userAgent: string = ""): string {
   const ua = userAgent.toLowerCase();
 
+  // === App in-app browsers ===
   if (ua.includes("zalo")) return "Zalo";
-  if (ua.includes("fbav") || ua.includes("fban") || ua.includes("facebook")) return "Facebook";
+  if (ua.includes("fbav") || ua.includes("fban")) return "Facebook";
+  if (ua.includes("messenger")) return "Messenger";
   if (ua.includes("instagram")) return "Instagram";
   if (ua.includes("tiktok")) return "TikTok";
-  if (ua.includes("messenger")) return "Messenger";
   if (ua.includes("twitter")) return "Twitter";
   if (ua.includes("linkedin")) return "LinkedIn";
-  if (ua.includes("chrome") || ua.includes("safari") || ua.includes("firefox") || ua.includes("edg"))
-    return "Browser";
+  if (ua.includes("snapchat")) return "Snapchat";
+  if (ua.includes("pinterest")) return "Pinterest";
+  if (ua.includes("telegram")) return "Telegram";
+  if (ua.includes("reddit")) return "Reddit";
+  if (ua.includes("line")) return "Line";
+  if (ua.includes("micromessenger")) return "WeChat";
+  if (ua.includes("whatsapp")) return "WhatsApp";
+  if (ua.includes("youtube")) return "YouTube";
+  if (ua.includes("gmail")) return "Gmail";
+  if (ua.includes("outlook")) return "Outlook";
+  if (ua.includes("discord")) return "Discord";
+  if (ua.includes("viber")) return "Viber";
+  if (ua.includes("skype")) return "Skype";
+  if (ua.includes("slack")) return "Slack";
+  if (ua.includes("kakaotalk")) return "KakaoTalk";
+  if (ua.includes("shopee")) return "Shopee";
+  if (ua.includes("lazada")) return "Lazada";
+  if (ua.includes("tiki")) return "Tiki";
+  if (ua.includes("grab")) return "Grab";
+  if (ua.includes("gojek")) return "Gojek";
+  if (ua.includes("spotify")) return "Spotify";
+
+  // === Trình duyệt truyền thống ===
+  if (ua.includes("edg")) return "Microsoft Edge";
+  if (ua.includes("opr") || ua.includes("opera")) return "Opera";
+  if (ua.includes("firefox")) return "Firefox";
+  if (ua.includes("samsungbrowser")) return "Samsung Internet";
+  if (ua.includes("brave")) return "Brave";
+  if (ua.includes("vivaldi")) return "Vivaldi";
+  if (ua.includes("duckduckgo")) return "DuckDuckGo Browser";
+  if (ua.includes("yabrowser")) return "Yandex Browser";
+  if (ua.includes("chrome")) return "Chrome";
+  if (ua.includes("safari")) return "Safari";
 
   return "Unknown";
 }
