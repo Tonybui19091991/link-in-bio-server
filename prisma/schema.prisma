@@ -25,7 +25,7 @@ model Link {
   id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String          @db.Uuid
   original_url String
-  short_codes String[]          
+  short_code String          
   title      String?
   is_active  Boolean         @default(true)
   is_deleted Boolean         @default(false)

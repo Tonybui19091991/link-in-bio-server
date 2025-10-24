@@ -17,13 +17,7 @@ const router = Router();
 router.post("/", authMiddleware, async (req, res) => {
   const { user_id, original_url, title, description } = req.body;
 
-  const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 20);
-  let shortCodesArray = [
-      "fb" + nanoid(), 
-      "zalo" + nanoid(), 
-      "tiktok" + nanoid(), 
-      "telegram" + nanoid()
-    ];
+  const shortCode = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 20);
 
   try {
     const link = await prisma.link.create({
@@ -32,7 +26,7 @@ router.post("/", authMiddleware, async (req, res) => {
         original_url, 
         title, 
         description,
-        short_codes: shortCodesArray,
+        short_code: shortCode,
       },
     });
 
@@ -57,7 +51,7 @@ router.get("/:userId", authMiddleware, async (req, res) => {
 
   const linksWithShortLinks = links.map((link) => ({
     ...link,
-    short_links: link.short_codes.map(code => `${BASE_URL}/${code}`),
+    short_links: `${BASE_URL}/${link.short_code}`,
     clicks_count: link.clicks.length,
   }));
   console.log(linksWithShortLinks);
@@ -127,9 +121,7 @@ export const handleRedirect = async (req: any, res: any) => {
 
   const link = await prisma.link.findFirst({
     where: {
-      short_codes: {
-        has: shortCode,
-      },
+      short_code: shortCode,
       is_deleted: false,
       is_active: true,
     },
@@ -154,7 +146,7 @@ export const handleRedirect = async (req: any, res: any) => {
       user_agent: userAgent,
       device_type: deviceType,
       ip_address: ip,
-      referrer: getReferrerFromShortCode(shortCode),
+      referrer: appSource,
       country: locationData?.country || null,
       region: locationData?.region || null,
       city: translateCityName(locationData?.city) || null,
@@ -209,25 +201,6 @@ router.put("/:id", authMiddleware, async (req: AuthRequest, res) => {
     res.status(500).json({ message: "Cập nhật link thất bại" });
   }
 });
-
-const getReferrerFromShortCode = (shortCode: string): string => {
-  const code = shortCode.toLowerCase();
-
-  if (code.includes("fb") || code.includes("facebook")) {
-    return "Facebook";
-  }
-  if (code.includes("zalo")) {
-    return "Zalo";
-  }
-  if (code.includes("tiktok")) {
-    return "Tiktok";
-  }
-  if (code.includes("tele") || code.includes("telegram")) {
-    return "Telegram";
-  }
-
-  return "unknown"; // fallback
-};
 
 export default router;
 
