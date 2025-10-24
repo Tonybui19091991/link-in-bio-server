@@ -215,7 +215,7 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
         id: true,
         title: true,
         original_url: true,
-        short_codes: true,
+        short_code: true,
         clicks: {
           select: { id: true }, // chỉ cần đếm
         },
@@ -269,7 +269,7 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
             title: topLink.title,
             url: topLink.original_url,
             clicks: topLink.clicks.length,
-            short_links: topLink.short_codes.map(code => `${BASE_URL}/${code}`), // đổi thành env variable trong production
+            short_links: `${BASE_URL}/${topLink.short_code}`, // đổi thành env variable trong production
           }
         : null,
       top10Links: top10Links.map((d) => ({
