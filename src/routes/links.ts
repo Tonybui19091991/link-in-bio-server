@@ -52,7 +52,7 @@ router.get("/:userId", authMiddleware, async (req, res) => {
 
   const linksWithShortLinks = links.map((link) => ({
     ...link,
-    short_links: `${BASE_URL}/${link.short_code}`,
+    short_link: `${BASE_URL}/${link.short_code}`,
     clicks_count: link.clicks.length,
   }));
   console.log(linksWithShortLinks);
