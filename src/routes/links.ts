@@ -46,7 +46,7 @@ router.get("/:userId", authMiddleware, async (req, res) => {
       clicks: true,
     },
     orderBy: {
-      clicks: { _count: 'desc' }, // sắp xếp theo số click
+      created_at: 'desc', // mới nhất lên đầu
     },
   });
 
