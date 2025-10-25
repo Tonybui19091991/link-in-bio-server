@@ -129,9 +129,35 @@ export function detectAppSource(userAgent: string = ""): string {
   return "Unknown";
 }
 
-function formatDeviceType(type?: string) {
-  if (!type) return "Desktop";
-  return type.charAt(0).toUpperCase() + type.slice(1);
+function getClientInfo(req) {
+  const ua = new UAParser(req.headers["user-agent"]);
+  const device = ua.getDevice();
+  const os = ua.getOS();
+  const browser = ua.getBrowser();
+
+  // Xác định loại thiết bị
+  const deviceType = device.type
+    ? device.type.charAt(0).toUpperCase() + device.type.slice(1)
+    : "Desktop";
+
+  // Xác định tên thiết bị cụ thể
+  let deviceName = "Unknown";
+  if (device.vendor || device.model) {
+    deviceName = [device.vendor, device.model].filter(Boolean).join(" ");
+  } else if (deviceType === "Desktop") {
+    if (os.name?.toLowerCase().includes("mac")) deviceName = "Mac";
+    else if (os.name?.toLowerCase().includes("windows")) deviceName = "Windows PC";
+    else deviceName = os.name || "Desktop";
+  }
+
+  return {
+    deviceType,       // Mobile / Tablet / Desktop / etc
+    deviceName,       // iPhone / iPad / Mac / Windows PC ...
+    os: os.name || "Unknown",
+    osVersion: os.version || "Unknown",
+    browser: browser.name || "Unknown",
+    browserVersion: browser.version || "Unknown",
+  };
 }
 
 export const handleRedirect = async (req: any, res: any) => {
@@ -171,8 +197,7 @@ export const handleRedirect = async (req: any, res: any) => {
   if (!link) return res.status(404).json({ error: "Link không tồn tại hoặc inactive" });
 
   // Phân tích user agent
-  const ua = new UAParser(req.headers["user-agent"]);
-  const deviceType = formatDeviceType(ua.getDevice().type);
+  const deviceInfo = getClientInfo(req);
 
   console.log("địa chỉ ip", ip);
   const locationData = getLocation(ip);
@@ -181,7 +206,7 @@ export const handleRedirect = async (req: any, res: any) => {
     data: {
       link_id: link.id,
       user_agent: userAgent,
-      device_type: deviceType,
+      device_type: deviceInfo.deviceName,
       ip_address: ip,
       referrer: appSource,
       country: locationData?.country || null,
