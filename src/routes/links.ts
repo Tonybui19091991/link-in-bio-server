@@ -123,6 +123,11 @@ export function detectAppSource(userAgent: string = ""): string {
   return "Unknown";
 }
 
+function formatDeviceType(type?: string) {
+  if (!type) return "Desktop";
+  return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
 export const handleRedirect = async (req: any, res: any) => {
   if (
     req.method === "HEAD" ||
@@ -163,7 +168,7 @@ export const handleRedirect = async (req: any, res: any) => {
 
   // Phân tích user agent
   const ua = new UAParser(req.headers["user-agent"]);
-  const deviceType = ua.getDevice().type || "Desktop"; // mặc định là desktop
+  const deviceType = formatDeviceType(ua.getDevice().type);
 
   let locationData = null;
   try {
