@@ -287,9 +287,10 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
 
 router.get("/heatmap/:userId", async (req, res) => {
   const { userId } = req.params;
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   try {
-    // Lấy clicks theo timezone VN
+    // Lấy clicks và convert timezone sang VN
     const clicks = await prisma.$queryRaw<
       { clicked_at: Date }[]
     >`
@@ -302,18 +303,8 @@ router.get("/heatmap/:userId", async (req, res) => {
         AND l.is_deleted = false
     `;
 
-    if (clicks.length === 0) {
-      return res.json({
-        days: days,
-        hours: [],
-        data: Array.from({ length: 7 }, () => [])
-      });
-    }
-
-    const uniqueHours = Array.from(
-      new Set(clicks.map(c => new Date(c.clicked_at).getHours()))
-    ).sort((a, b) => a - b);
-
+    // ✅ Luôn hiển thị 24 giờ trong ngày
+    const uniqueHours = Array.from({ length: 24 }, (_, i) => i); // 0–23
     const hourLabels = uniqueHours.map(h => `${h}h`);
     const data: number[][] = Array.from(
       { length: 7 },
@@ -322,9 +313,9 @@ router.get("/heatmap/:userId", async (req, res) => {
 
     for (const { clicked_at } of clicks) {
       const d = new Date(clicked_at);
-      const dayIdx = (d.getDay() + 6) % 7;
-      const hourIdx = uniqueHours.indexOf(d.getHours());
-      if (hourIdx >= 0) data[dayIdx][hourIdx] += 1;
+      const dayIdx = (d.getDay() + 6) % 7; // Thứ 2 = 0
+      const hourIdx = d.getHours();
+      data[dayIdx][hourIdx] += 1;
     }
 
     const maxValue = Math.max(...data.flat());
@@ -332,11 +323,16 @@ router.get("/heatmap/:userId", async (req, res) => {
       row.map(v => (maxValue > 0 ? v / maxValue : 0))
     );
 
-    res.json({ days: days, hours: hourLabels, data: normalizedData });
+    res.json({
+      days,
+      hours: hourLabels,
+      data: normalizedData,
+    });
   } catch (err) {
     console.error("❌ Heatmap error:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 export default router;
