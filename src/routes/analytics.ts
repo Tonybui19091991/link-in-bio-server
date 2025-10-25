@@ -287,7 +287,7 @@ router.get("/overview/:userId", authMiddleware, async (req, res) => {
 
 router.get("/heatmap/:userId", async (req, res) => {
   const { userId } = req.params;
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"];
 
   try {
     // Lấy clicks và convert timezone sang VN
