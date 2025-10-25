@@ -67,9 +67,14 @@ export function translateCityName(city?: string): string | null {
   return cityTranslations[normalized] || normalized;
 }
 
-async function getLocation(ip: string) {
-  const response = await axios.get(`https://ipapi.co/${ip}/json/`);
-  console.log(response.data);
+export function getLocation(ip: string) {
+  const geo = geoip.lookup(ip);
+  if (!geo) return null;
+  return {
+    country: geo.country,
+    region: geo.region,
+    city: geo.city,
+  };
 }
 
 /**
@@ -153,8 +158,6 @@ export const handleRedirect = async (req: any, res: any) => {
 
   const appSource = detectAppSource(userAgent);
   console.log("Nguồn mở link:", appSource);
-  console.log("địa chỉ ip", ip);
-  getLocation(ip);
 
   const link = await prisma.link.findFirst({
     where: {
@@ -170,12 +173,8 @@ export const handleRedirect = async (req: any, res: any) => {
   const ua = new UAParser(req.headers["user-agent"]);
   const deviceType = formatDeviceType(ua.getDevice().type);
 
-  let locationData = null;
-  try {
-    locationData = ip ? geoip.lookup(ip) : null;
-  } catch (err) {
-    console.error("GeoIP lookup failed:", err);
-  }
+  console.log("địa chỉ ip", ip);
+  const locationData = getLocation(ip);
   console.log(locationData);
   await prisma.click.create({
     data: {
