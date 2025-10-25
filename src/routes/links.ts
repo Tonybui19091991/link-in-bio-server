@@ -112,6 +112,7 @@ export function detectAppSource(userAgent: string = ""): string {
   if (ua.includes("grab")) return "Grab";
   if (ua.includes("gojek")) return "Gojek";
   if (ua.includes("spotify")) return "Spotify";
+  if (ua.includes("gsa")) return "Google App";
 
   // === Trình duyệt truyền thống ===
   if (ua.includes("edg")) return "Microsoft Edge";
